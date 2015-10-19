@@ -36,7 +36,6 @@ import java.util.*;
  public class Main {
      
      public static int[][] parser(ArrayList<String[]> argument) {    
-         //[[5,6],[4,5],[2,3,4]]
          int[][] result = new int[argument.size()][];       
          int j = 0;
          for (String[] arg: argument) {
@@ -48,6 +47,23 @@ import java.util.*;
              j++;
          }
          return result;      
+     }
+     
+     public static boolean[][] booleanParser(int[][] argument) {
+         
+         boolean[][] booleanResult = new boolean[argument.length][];
+         
+         for (int i = 0; i < argument.length; i++) {
+             boolean[] temper = new boolean[argument[i].length];
+             for (int j = 0; j < argument[i].length; j++) {
+                 if (argument[i][j] < 0) {
+                     temper[j] = false;
+                 }
+                 else { temper[j] = true;}               
+             }
+             booleanResult[i] = temper;
+         }
+         return booleanResult;       
      }
      
 
@@ -74,7 +90,7 @@ import java.util.*;
          ArrayList<String[]> clauseFormula = new ArrayList<String[]>();
          
          while ( (!(expression = scanner.nextLine()).equals(finish)) && (parserState != 6) ) {
- 
+
              switch (parserState) { // State machine switch
              case 0://Initial state Does nothing much
                  System.out.println("Waiting");
@@ -106,6 +122,7 @@ import java.util.*;
                  //System.out.println(Arrays.toString((clauseFormula.get(i))));
                  i++;
                  System.out.println(Arrays.deepToString(parser(clauseFormula)));
+                 System.out.println(Arrays.deepToString(booleanParser(parser(clauseFormula))));
                  break;
              case 4: 
              //One of the input format error state.
