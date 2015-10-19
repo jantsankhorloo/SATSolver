@@ -35,7 +35,7 @@ import java.util.*;
 
  public class Main {
      
-     public static int[][] parser(ArrayList<String[]> argument) {    
+     public static int[][] parser(ArrayList<String[]> argument) { //this takes argument from arraylist
          int[][] result = new int[argument.size()][];       
          int j = 0;
          for (String[] arg: argument) {
@@ -49,7 +49,7 @@ import java.util.*;
          return result;      
      }
      
-     public static boolean[][] booleanParser(int[][] argument) {
+     public static boolean[][] booleanParser(int[][] argument) { //takes the return value from parser() method
          
          boolean[][] booleanResult = new boolean[argument.length][];
          
@@ -66,6 +66,30 @@ import java.util.*;
          return booleanResult;       
      }
      
+     public static boolean[] firstSolver(boolean[][] booleanArg) {//takes input from booleanParser
+         
+         boolean[] answer = new boolean[booleanArg.length];
+         //boolean result = false;
+         
+         for (int i = 0; i < booleanArg.length; i++) {
+             boolean temp = booleanArg[i][0];
+             for (int j = 1; j < booleanArg[i].length; j++) {
+                 temp = (temp || booleanArg[i][j]);
+             }
+             answer[i] = temp;
+         }
+         return answer;
+     }
+     
+     public static boolean secondSolver(boolean[] booleanArguments) {
+         
+         boolean temp = booleanArguments[0];
+         
+         for (int i = 0; i < booleanArguments.length; i++) {
+             temp = (temp && booleanArguments[i]);
+         }
+         return temp;
+     }
 
      public static void main(String[] args) { 
          Scanner scanner = new Scanner(System.in);
@@ -123,6 +147,8 @@ import java.util.*;
                  i++;
                  System.out.println(Arrays.deepToString(parser(clauseFormula)));
                  System.out.println(Arrays.deepToString(booleanParser(parser(clauseFormula))));
+                 System.out.println(Arrays.toString(firstSolver(booleanParser(parser(clauseFormula)))));
+                 System.out.println(secondSolver(firstSolver(booleanParser(parser(clauseFormula)))));
                  break;
              case 4: 
              //One of the input format error state.
