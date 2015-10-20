@@ -9,7 +9,7 @@ import java.util.*;
  //  (finish)                       // 6
  
 
- public class Main {
+public class Main {
      
      //this takes argument from arraylist, parses them into 2D array of Int
      public static int[][] parser(ArrayList<String[]> argument) {        
@@ -26,18 +26,18 @@ import java.util.*;
          return result;      
      }
      
-     //SAT Solver
-     public static boolean formulaCalc(boolean[] variables, int[][] klauses) {
+    //Formula Solver
+    public static boolean formulaCalc(boolean[] variables, int[][] klauses) {
 
              boolean inner = false;
              boolean outer = true;
               
-             for (int k = 0; (k < klauses.length) ; k++) {
-                 for (int j = 0 ; j < klauses[k].length; j++) {
+             for (int k = 0; (k < klauses.length); k++) {
+                 for (int j = 0; j < klauses[k].length; j++) {
                      if (klauses[k][j] > 0) {
-                         inner = (inner || variables[klauses[k][j]-1]);
+                         inner = (inner || variables[klauses[k][j] - 1]);
                      } else {
-                         inner = (inner || (!variables[Math.abs(klauses[k][j])-1]));
+                         inner = (inner || (!variables[Math.abs(klauses[k][j]) - 1]));
                      }
                  }
                  outer = (outer && inner);
@@ -46,19 +46,21 @@ import java.util.*;
              return outer;                  
      }
      
-     //Recursive Method
-     public static boolean[] updateVariable(int ind, boolean[] inputVar) {
-
-             if (inputVar[ind] == false) {
-                 inputVar[ind] = true;
-             } else if (inputVar[ind] == true) {
-                 inputVar[ind] = false;
-                 updateVariable(ind + 1, inputVar);
-             }
-             return inputVar;
-     }
+    //RECURSIVE METHOD HERE
+    //This is where I exhaustively
+    //search for different boolean arrangements
+    public static boolean[] updateVariable(int ind, boolean[] inputVar) {
+        if (inputVar[ind] == false) {
+            inputVar[ind] = true;
+        } else if (inputVar[ind] == true) {
+            inputVar[ind] = false;
+            updateVariable(ind + 1, inputVar);
+        }
+        return inputVar;
+    }
    
-     public static void main(String[] args) { 
+    //Main Method
+    public static void main(String[] args) { 
          
          Scanner scanner = new Scanner(System.in);
          
@@ -83,7 +85,9 @@ import java.util.*;
                  
              case 1: //header parsing
                  if (expression.regionMatches(0, "Test", 0, "Test".length()) 
-                         || expression.regionMatches(0, "Problem", 0, "Problem".length())) {
+                  || expression.regionMatches(0, "Problem", 0, "Problem".length())
+                  || expression.regionMatches(0, "Input", 0, "Input".length())) {
+                     
                      inputs.addAll(Arrays.asList(expression.split("\\s*,\\s*")));
                  }
                  parserState = 2; 
@@ -101,11 +105,23 @@ import java.util.*;
              case 3: //clauses parsing
                  if (clauseNumber < varclause[1]) {
                      clauseNumber++;
-                     clauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));
-                     
+                     clauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));  
                      clauseFormula.add(expression.split(" "));
-
-                 } else { parserState = 5;} //Clause collecting done                
+                 } 
+                 
+                 else if (expression.regionMatches(0, "Test", 0, "Test".length()) 
+                         || expression.regionMatches(0, "Problem", 0, "Problem".length())
+                         || expression.regionMatches(0, "Input", 0, "Input".length())) {
+                     
+                     parserState = 1;    
+                     
+                 } else {
+                     System.out.println(inputs.toString());
+                     System.out.println(Arrays.toString(varclause));
+                     System.out.println(clauses.toString());
+                     System.out.println(Arrays.deepToString(parser(clauseFormula)));
+                     
+                     parserState = 5;} //Clause collecting done                
                  break; 
                  
              case 4: //One of the input format error state.
@@ -132,8 +148,6 @@ import java.util.*;
                          }
                          System.out.println();
                      }             
-                     //System.out.println(probe);                
-                     //System.out.println(Arrays.toString(booleanVariables)); 
                      parserState = 6;
                      break;
                  } catch (ArrayIndexOutOfBoundsException e) {
@@ -148,7 +162,7 @@ import java.util.*;
                  System.out.println("Leaving the program"); 
                  break;
              default:
-                 System.out.println("DEFAULT : Leaving the program");
+                 System.out.println("DEFAULT: Leaving the program");
                  break;
              }                 
          }  
