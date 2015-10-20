@@ -1,41 +1,18 @@
-import java.io.*;
 import java.util.*;
  
- //comment
- //There are two stages
- //test 1
- //var clause
- //varx vary
- //...
- //test 2
- //...
- //Question is, how will the parser know it's end of input?
- //-End Of File? EOF , for current terminal mockup it will be EOF chars
- 
- /*
- Test 1
- 5 3
- 2 3
- -1 3
- 5 2
- Test 2
- ...
- */
- //((parserState == 2) && !(expression.matches(".")))
- 
- //State machine states
- // O (initial state)                // 0
- // A (head parsing)                 // 1
- // B (Var and Clause parsing)       // 2
- // C (variable state parsing)       // 3
- // E (Exception or Error state)     // 4
- // K (Calculate stage)              // 5
- // F (finish)                       // 6
+ //  (initial state)                // 0
+ //  (head parsing)                 // 1
+ //  (Var and Clause parsing)       // 2
+ //  (variable state parsing)       // 3
+ //  (Exception or Error state)     // 4
+ //  (Calculate stage)              // 5
+ //  (finish)                       // 6
  
 
  public class Main {
      
-     public static int[][] parser(ArrayList<String[]> argument) { //this takes argument from arraylist
+     //this takes argument from arraylist, parses them into 2D array of Int
+     public static int[][] parser(ArrayList<String[]> argument) {        
          int[][] result = new int[argument.size()][];       
          int j = 0;
          for (String[] arg: argument) {
@@ -49,123 +26,132 @@ import java.util.*;
          return result;      
      }
      
-     public static boolean[][] booleanParser(int[][] argument) { //takes the return value from parser() method
-         
-         boolean[][] booleanResult = new boolean[argument.length][];
-         
-         for (int i = 0; i < argument.length; i++) {
-             boolean[] temper = new boolean[argument[i].length];
-             for (int j = 0; j < argument[i].length; j++) {
-                 if (argument[i][j] < 0) {
-                     temper[j] = false;
-                 }
-                 else { temper[j] = true;}               
-             }
-             booleanResult[i] = temper;
-         }
-         return booleanResult;       
-     }
-     
-     public static boolean[] firstSolver(boolean[][] booleanArg) {//takes input from booleanParser
-         
-         boolean[] answer = new boolean[booleanArg.length];
-         //boolean result = false;
-         
-         for (int i = 0; i < booleanArg.length; i++) {
-             boolean temp = booleanArg[i][0];
-             for (int j = 1; j < booleanArg[i].length; j++) {
-                 temp = (temp || booleanArg[i][j]);
-             }
-             answer[i] = temp;
-         }
-         return answer;
-     }
-     
-     public static boolean secondSolver(boolean[] booleanArguments) {
-         
-         boolean temp = booleanArguments[0];
-         
-         for (int i = 0; i < booleanArguments.length; i++) {
-             temp = (temp && booleanArguments[i]);
-         }
-         return temp;
-     }
+     //SAT Solver
+     public static boolean formulaCalc(boolean[] variables, int[][] klauses) {
 
+             boolean inner = false;
+             boolean outer = true;
+              
+             for (int k = 0; (k < klauses.length) ; k++) {
+                 for (int j = 0 ; j < klauses[k].length; j++) {
+                     if (klauses[k][j] > 0) {
+                         inner = (inner || variables[klauses[k][j]-1]);
+                     } else {
+                         inner = (inner || (!variables[Math.abs(klauses[k][j])-1]));
+                     }
+                 }
+                 outer = (outer && inner);
+                 inner = false;         
+             }
+             return outer;                  
+     }
+     
+     //Recursive Method
+     public static boolean[] updateVariable(int ind, boolean[] inputVar) {
+
+             if (inputVar[ind] == false) {
+                 inputVar[ind] = true;
+             } else if (inputVar[ind] == true) {
+                 inputVar[ind] = false;
+                 updateVariable(ind + 1, inputVar);
+             }
+             return inputVar;
+     }
+   
      public static void main(String[] args) { 
+         
          Scanner scanner = new Scanner(System.in);
          
-         String expression;// = "";
-         String finish = "eof"; //dot EOF
-         String testNumber = "";
-         
+         String expression;
+         String eof = "EOF";      
          int parserState = 1; // Let's start from head parsing 
-         int testNumberTrack = 1;
-         int i = 0;
+         int[] varclause = new int[2];
+         int clauseNumber = 0;
+         boolean[] booleanVariables = null;
          
-         ArrayList<String> inputs = new ArrayList<String>(); 
-         ArrayList<String> varClauses = new ArrayList<String>(); 
-         //ArrayList<String> variables = new ArrayList<String>(); // saving variables
-         ArrayList<String> clauses = new ArrayList<String>(); // saving clauses
-         //String[2] varClaus;///= "0","0";//string.split("-")
-         ArrayList<String> variableNumbers = new ArrayList<String>();
-         ArrayList<String> clauseNumbers = new ArrayList<String>();
-         
-         //String[][] clauseFormula = new String[10][];
+         ArrayList<String> inputs = new ArrayList<String>();        //for problem header parsing
+         ArrayList<String> varClauses = new ArrayList<String>();    //for #of var and clause
+         ArrayList<String> clauses = new ArrayList<String>();       //clauses and formulas
          ArrayList<String[]> clauseFormula = new ArrayList<String[]>();
          
-         while ( (!(expression = scanner.nextLine()).equals(finish)) && (parserState != 6) ) {
-
+         while ((!(expression = scanner.nextLine()).equals(eof)) && (parserState != 6)) {
+             
              switch (parserState) { // State machine switch
-             case 0://Initial state Does nothing much
+             case 0:                // Initial state
                  System.out.println("Waiting");
                  break;
-             case 1: 
+                 
+             case 1: //header parsing
                  if (expression.regionMatches(0, "Test", 0, "Test".length()) 
                          || expression.regionMatches(0, "Problem", 0, "Problem".length())) {
                      inputs.addAll(Arrays.asList(expression.split("\\s*,\\s*")));
                  }
-                 System.out.println(inputs.toString());
                  parserState = 2; 
                  break;
-             case 2: 
+                 
+             case 2: //# of var and clauses parsing
                  varClauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));
-                 String[] parts = expression.split(" ");
-                 int[] varclause = new int[2]; 
+                 String[] parts = expression.split(" ");                
                  varclause[0] = Integer.parseInt(parts[0]); //# of var
                  varclause[1] = Integer.parseInt(parts[1]); //# of clauses
-                 System.out.println(Arrays.toString(varclause));
+                 booleanVariables = new boolean[varclause[0]]; // creating boolean variables
                  parserState = 3;
                  break;
-             case 3: 
-                 clauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));
                  
-                 System.out.println(clauses.toString());
+             case 3: //clauses parsing
+                 if (clauseNumber < varclause[1]) {
+                     clauseNumber++;
+                     clauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));
+                     
+                     clauseFormula.add(expression.split(" "));
+
+                 } else { parserState = 5;} //Clause collecting done                
+                 break; 
                  
-                 clauseFormula.add(expression.split(" "));
-                 
-                 //System.out.println(Arrays.toString((clauseFormula.get(i))));
-                 i++;
-                 System.out.println(Arrays.deepToString(parser(clauseFormula)));
-                 System.out.println(Arrays.deepToString(booleanParser(parser(clauseFormula))));
-                 System.out.println(Arrays.toString(firstSolver(booleanParser(parser(clauseFormula)))));
-                 System.out.println(secondSolver(firstSolver(booleanParser(parser(clauseFormula)))));
-                 break;
-             case 4: 
-             //One of the input format error state.
+             case 4: //One of the input format error state.
                  parserState = 6;
                  break;
-             case 5: 
-             //Calculate state;
-                 break;
+                 
+             case 5: //SAT Solver
+                 try {
+                     boolean probe = false;
+                     while (!probe) {
+                         booleanVariables = updateVariable(0, booleanVariables);
+                         probe = formulaCalc(booleanVariables, parser(clauseFormula));
+                     }                 
+                     if (probe == true) {
+                         System.out.print(inputs.get(0) + ": ");
+                         System.out.print(varclause[0]);
+                         System.out.print(" Variable(s) ");
+                         System.out.print(varclause[1]);
+                         System.out.println(" Clause(s)");
+                         System.out.println("Satisfiable");
+                         for (boolean var: booleanVariables) {
+                             System.out.print(var);
+                             System.out.print(" ");
+                         }
+                         System.out.println();
+                     }             
+                     //System.out.println(probe);                
+                     //System.out.println(Arrays.toString(booleanVariables)); 
+                     parserState = 6;
+                     break;
+                 } catch (ArrayIndexOutOfBoundsException e) {
+                     System.out.print(inputs.get(0) + ": ");
+                     System.out.print(varclause[0]);
+                     System.out.print(" Variable(s) ");
+                     System.out.print(varclause[1]);
+                     System.out.println(" Clause(s)");
+                     System.out.println("Unsatisfiable");
+                 }
              case 6: 
-                 System.out.println("Error occured leaving the program"); 
+                 System.out.println("Leaving the program"); 
                  break;
              default:
-                 System.out.println("DEFAULT : Error occured leaving the program");
+                 System.out.println("DEFAULT : Leaving the program");
                  break;
-             }
-                  
+             }                 
          }  
          scanner.close();
-    }//end of static main
-}//end of Main Class
+    }
+}
