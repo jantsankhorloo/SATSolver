@@ -61,7 +61,6 @@ public class Test {
 	    //Main Method
 	    public static void main(String[] args) { 	         
 	         Scanner scanner = new Scanner(System.in);	         
-	         
 	         String finalResult = "";         
 	         String expression = "";
 	         String eof = "EOF";      
@@ -72,18 +71,24 @@ public class Test {
 	         int nameindex = 0;
 	         
 	         boolean[] booleanVariables = null;
+	         boolean run = true;
          
 	         ArrayList<String> inputs = new ArrayList<String>();        //for problem header parsing
 	         ArrayList<String> clauses = new ArrayList<String>();       //clauses and formulas
 	         ArrayList<String[]> clauseFormula = new ArrayList<String[]>();
 	         
-	         if (!(expression = scanner.nextLine()).equals(eof)) {
-	             switch (parserState) { // State machine switch
+	         //while (run) {
+	         while (scanner.hasNextLine()) {
+	        	 switch (parserState) { // State machine switch
 	             case 0:                // Initial state
 	                 System.out.println("Waiting");
 	                 break;
 	                 
-	             case 1: //header parsing	                	 	           	                 
+	             case 1: //header parsing	
+	            	 expression = scanner.nextLine();
+	            	 if (expression.equals(eof)) {
+	            		 run = false;
+	            	 }
 	            	 inputs.addAll(Arrays.asList(expression.split("\\s*,\\s*")));	                 
 	            	 clauseNumber = 0;
 	            	 clauses.clear();
@@ -92,28 +97,26 @@ public class Test {
 	            	 parserState = 2; 
 	                 break;
 	                 
-	             case 2: //# of var and clauses parsing	      
+	             case 2: //# of var and clauses parsing	 
+	            	 expression = scanner.nextLine();
 	            	 String[] parts = expression.split(" ");  
 	                 varclause[0] = Integer.parseInt(parts[0]); //# of var
 	                 varclause[1] = Integer.parseInt(parts[1]); //# of clauses
-	                 //System.out.println(varclause[0]);
-	                 //System.out.println(varclause[1]);
 	                 booleanVariables = new boolean[varclause[0]]; // creating boolean variables
 	                 parserState = 3;
 	                 break;
 	                 
-	             case 3: //clauses parsing           	 
-		            	 if (clauseNumber < varclause[1]) {    
-			            	 clauseNumber++;
-			            	 //System.out.println("clauseNumber: " + clauseNumber + " varclause: " + varclause[1]);
-			                 clauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));  
-			                 String[] temps = expression.split(" ");
-			                 //System.out.println(Arrays.toString(temps));
-			                 clauseFormula.add(temps);
-			             } else { 
-		                	 parserState = 5;		               
-		                 } //Clause collecting done 
-		            	 break;
+	             case 3: //clauses parsing  	            	 
+		             if (clauseNumber < varclause[1]) {  
+		            	 expression = scanner.nextLine();
+			             clauseNumber++;
+			             clauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));  
+			             String[] temps = expression.split(" ");
+			             clauseFormula.add(temps);
+			         } else { 
+		                parserState = 5;		               
+		             } 
+		             break;
 	                 
 	             case 5: //SAT Solver
 	                 try {
@@ -131,15 +134,13 @@ public class Test {
 	                             finalResult += (var + " ");
 	                         }
 	                         finalResult += "\n";
-	                         //System.out.println(finalResult);
 	                     }             
 	                     parserState = 1;
 	                     break;
 	                 } catch (ArrayIndexOutOfBoundsException e) {
-	                     finalResult += (inputs.get(nameindex++) + ": " + varclause[0] 
-	                    		     + " Variable(s) " + varclause[1] 
+	                     finalResult += (inputs.get(nameindex++) + ": "  
+	                    		     + varclause[0] + " Variable(s) " + varclause[1] 
 	                    		     + " Clause(s)" + "\n" + "Unsatisfiable" + "\n");
-	                     //System.out.println(finalResult);
 	                     parserState = 1;
 	                     break;
 	                 }
@@ -149,6 +150,9 @@ public class Test {
 	                 break;
 	             }                 
 	         }  
+	         finalResult += (inputs.get(nameindex++) + ": " + varclause[0] 
+            		 + " Variable(s) " + varclause[1] + " Clause(s)" + "\n"
+            		 + "Satisfiable" + "\n");
 	         scanner.close();
 	         System.out.println(finalResult);
 	    }	    
