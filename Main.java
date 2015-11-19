@@ -8,7 +8,6 @@ import java.util.*;
  //  (Calculate stage)              // 5
  //  (finish)                       // 6
  
-
 public class Main {
      
      //this takes argument from arraylist, parses them into 2D array of Int
@@ -24,7 +23,7 @@ public class Main {
              j++;
          }
          return result;      
-     }
+    }
      
     //Formula Solver
     public static boolean formulaCalc(boolean[] variables, int[][] klauses) {
@@ -49,12 +48,12 @@ public class Main {
     //RECURSIVE METHOD HERE
     //This is where I exhaustively
     //search for different boolean arrangements
-    public static boolean[] updateVariable(int ind, boolean[] inputVar) {
-        if (inputVar[ind] == false) {
-            inputVar[ind] = true;
-        } else if (inputVar[ind] == true) {
-            inputVar[ind] = false;
-            updateVariable(ind + 1, inputVar);
+    public static boolean[] updateVariable(int index, boolean[] inputVar) {
+        if (inputVar[index] == false) {
+            inputVar[index] = true;
+        } else if (inputVar[index] == true) {
+            inputVar[index] = false;
+            updateVariable(index + 1, inputVar);
         }
         return inputVar;
     }
@@ -108,20 +107,7 @@ public class Main {
                      clauses.addAll(Arrays.asList(expression.split("\\s*,\\s*")));  
                      clauseFormula.add(expression.split(" "));
                  } 
-                 
-                 else if (expression.regionMatches(0, "Test", 0, "Test".length()) 
-                         || expression.regionMatches(0, "Problem", 0, "Problem".length())
-                         || expression.regionMatches(0, "Input", 0, "Input".length())) {
-                     
-                     parserState = 1;    
-                     
-                 } else {
-                     System.out.println(inputs.toString());
-                     System.out.println(Arrays.toString(varclause));
-                     System.out.println(clauses.toString());
-                     System.out.println(Arrays.deepToString(parser(clauseFormula)));
-                     
-                     parserState = 5;} //Clause collecting done                
+                 else { parserState = 5;} //Clause collecting done                
                  break; 
                  
              case 4: //One of the input format error state.
