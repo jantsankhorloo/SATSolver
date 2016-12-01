@@ -1,5 +1,4 @@
 import java.util.*;
- 
  //  (initial state)                // 0
  //  (head parsing)                 // 1
  //  (Var and Clause parsing)       // 2
@@ -7,9 +6,8 @@ import java.util.*;
  //  (Exception or Error state)     // 4
  //  (Calculate stage)              // 5
  //  (finish)                       // 6
- 
+
 public class Main {
-     
      //this takes argument from arraylist, parses them into 2D array of Int
      public static int[][] parser(ArrayList<String[]> argument) {        
          int[][] result = new int[argument.size()][];       
@@ -30,7 +28,6 @@ public class Main {
 
              boolean inner = false;
              boolean outer = true;
-              
              for (int k = 0; (k < klauses.length); k++) {
                  for (int j = 0; j < klauses[k].length; j++) {
                      if (klauses[k][j] > 0) {
